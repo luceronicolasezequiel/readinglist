@@ -1,0 +1,19 @@
+M2 Building a Web Service
+    Understanding the net/http Package
+    https://app.pluralsight.com/course-player?clipId=cf8cf8ea-763c-40b3-982b-6dbb97be6cd8
+
+    Setting up the Proyect Structure
+    https://app.pluralsight.com/course-player?clipId=78884c6a-fe2e-48a0-b990-271133d91243
+
+    Creating a Healtcheck Endpoint
+    https://app.pluralsight.com/course-player?clipId=43c0dccb-d345-4905-a314-cfaf3cb51090
+
+    Making an Application Type for Dependencies
+    https://app.pluralsight.com/course-player?clipId=422006c1-eafb-4414-a37f-81747e9a0c21
+
+    Adding Routes and API Endpoints
+    https://app.pluralsight.com/course-player?clipId=6c3f586b-c8a8-4087-8874-37b04323d990
+
+M3 Working with JSON
+    Instroduction
+    https://app.pluralsight.com/course-player?clipId=9bec4a73-cd79-43e6-a9b2-e38d9216cc61
