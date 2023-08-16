@@ -1,4 +1,4 @@
-M2 Building a Web Service
+    M2 Building a Web Service
     Understanding the net/http Package
     https://app.pluralsight.com/course-player?clipId=cf8cf8ea-763c-40b3-982b-6dbb97be6cd8
 
@@ -17,3 +17,10 @@ M2 Building a Web Service
 M3 Working with JSON
     Instroduction
     https://app.pluralsight.com/course-player?clipId=9bec4a73-cd79-43e6-a9b2-e38d9216cc61
+
+    Using Struct tags to change Json Keys
+    https://app.pluralsight.com/course-player?clipId=cdfbef48-32af-4acf-8def-740ec2cda9aa
+
+    Envelope JSON Responses
+    https://app.pluralsight.com/course-player?clipId=063abdc0-2877-4e51-adbc-9ea1b2b03936
+    
