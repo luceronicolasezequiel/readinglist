@@ -23,4 +23,53 @@ M3 Working with JSON
 
     Envelope JSON Responses
     https://app.pluralsight.com/course-player?clipId=063abdc0-2877-4e51-adbc-9ea1b2b03936
-    
+
+    Parsing JSON Request
+    https://app.pluralsight.com/course-player?clipId=16c510ca-a59e-4856-892c-33dd7aa5fa10
+
+M4 Adding a Database
+    Instroduction 
+    https://app.pluralsight.com/course-player?clipId=57dbf950-32a5-4c1b-af20-077836748908
+
+    Setting up a PostgresSQL Database
+    https://app.pluralsight.com/course-player?clipId=d8fc1c87-cff7-47a8-ba09-25baaabda8ac
+        Connect to Postgres Server with Docker Terminal
+            psql -h localhost -p 5432 -U postgres
+                CREATE DATABASE readinglist;
+                CREATE ROLE readinglist WITH LOGIN PASSWORD 'pa55w0rd';
+                Conect to readinglist Database
+                    \c readinglist;
+                        You are now connected to database "readinglist" as user "postgres".
+                    CREATE TABLE IF NOT EXISTS books (
+                        id bigserial PRIMARY KEY,
+                        created_at timestamp(0) with time zone NOT NULL DEFAULT NOW(),
+                        title text NOT NULL,
+                        published integer NOT NULL,
+                        pages integer NOT NULL,
+                        genres text[] NOT NULL,
+                        rating real NOT NULL,
+                        version integer NOT NULL DEFAULT 1
+                    );
+                    Conceder permisos de operaciones CRUD to books TABLE
+                        GRANT SELECT, INSERT, UPDATE, DELETE ON books TO readinglist;
+                    Conceder permisos para operaciones de secuencia de PRIMARY KEY
+                        GRANT USAGE, SELECT ON SEQUENCE books_id_seq TO readinglist;
+
+    Connecting to the Database
+    https://app.pluralsight.com/course-player?clipId=01df3c77-47ee-439a-8949-847969e1d07b
+        Create Environment var for connection string in terminal
+            export READINGLIST_DB_DSN='postgres://readinglist:pa55w0rd@localhost/readinglist?sslmode=disable'
+
+-----
+
+curl -X GET localhost:4000/v1/healthcheck 
+
+curl -X GET localhost:4000/v1/books
+
+curl -X GET localhost:4000/v1/books/123
+
+BODY='{"title": "The Black Soulstone", "published": 2001, "pages": 107, "genres": ["Fiction", "Mystery"], "rating": 3.5}'
+curl -i -d "$BODY" -X POST localhost:4000/v1/books
+
+BODY='{"title": "The Black Soulstone", "published": 2001, "pages": 107, "genres": ["Fiction", "Mystery"], "rating": 3.5}'
+curl -i -d "$BODY" -X PUT localhost:4000/v1/books/121
