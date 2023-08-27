@@ -60,6 +60,10 @@ M4 Adding a Database
         Create Environment var for connection string in terminal
             export READINGLIST_DB_DSN='postgres://readinglist:pa55w0rd@localhost/readinglist?sslmode=disable'
 
+    Creating Models for CRUD  Operations
+    https://app.pluralsight.com/course-player?clipId=b9de648f-a00d-43e2-b3ba-25ced2e75edc
+    
+
 -----
 
 curl -X GET localhost:4000/v1/healthcheck 
