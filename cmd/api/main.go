@@ -10,6 +10,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	"readinglist.luceronicolasezequiel/internal/data"
 )
 
 const version = "1.0.0"
@@ -23,6 +24,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -34,11 +36,7 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	app := &application{
-		config: cfg,
-		logger: logger,
-	}
-
+	cfg.dsn = "postgres://readinglist:pa55w0rd@localhost/readinglist?sslmode=disable"
 	db, err := sql.Open("postgres", cfg.dsn)
 	if err != nil {
 		logger.Fatal(err)
@@ -51,6 +49,12 @@ func main() {
 		logger.Fatal(err)
 	}
 	logger.Printf("database connection pool established")
+
+	app := &application{
+		config: cfg,
+		logger: logger,
+		models: data.NewModels(db),
+	}
 
 	addr := fmt.Sprintf(":%d", cfg.port)
 

@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"readinglist.luceronicolasezequiel/internal/data"
 )
@@ -35,30 +35,13 @@ func (app *application) healthcheck(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		books := []data.Book{
-			{
-				ID:        1,
-				CreatedAt: time.Now(),
-				Title:     "Echoes in the Darkness",
-				Published: 2019,
-				Pages:     300,
-				Genres:    []string{"Fiction", "Thriller"},
-				Rating:    4.5,
-				Version:   1,
-			},
-			{
-				ID:        2,
-				CreatedAt: time.Now(),
-				Title:     "The Legecy of Deckard Cain",
-				Published: 2017,
-				Pages:     432,
-				Genres:    []string{"Fiction", "Adventure"},
-				Rating:    4.9,
-				Version:   1,
-			},
+		books, err := app.models.Books.GetAll()
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 
-		if err := app.writeJSON(w, http.StatusOK, envelope{"books": books}); err != nil {
+		if err := app.writeJSON(w, http.StatusOK, envelope{"books": books}, nil); err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -70,7 +53,7 @@ func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Req
 			Published int      `json:"published"`
 			Pages     int      `json:"pages"`
 			Genres    []string `json:"genres"`
-			Rating    float64  `json:"rating"`
+			Rating    float32  `json:"rating"`
 		}
 
 		/* body, err := io.ReadAll(r.Body)
@@ -85,7 +68,28 @@ func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Req
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		}
 
-		fmt.Fprintf(w, "%v\n", input)
+		book := &data.Book{
+			Title:     input.Title,
+			Published: input.Published,
+			Pages:     input.Pages,
+			Genres:    input.Genres,
+			Rating:    input.Rating,
+		}
+
+		err = app.models.Books.Insert(book)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		headers := make(http.Header)
+		headers.Set("Location", fmt.Sprintf("v1/books/%d", book.ID))
+
+		err = app.writeJSON(w, http.StatusCreated, envelope{"book": book}, headers)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -109,18 +113,18 @@ func (app *application) getBook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
 
-	book := data.Book{
-		ID:        idInt,
-		CreatedAt: time.Now(),
-		Title:     "Echoes in the Darkness",
-		Published: 2019,
-		Pages:     300,
-		Genres:    []string{"Fiction", "Thriller"},
-		Rating:    4.5,
-		Version:   1,
+	book, err := app.models.Books.Get(idInt)
+	if err != nil {
+		switch {
+		case errors.Is(err, errors.New("record not found")):
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		default:
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"book": book}); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, envelope{"book": book}, nil); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -133,23 +137,23 @@ func (app *application) updateBook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
 
+	book, err := app.models.Books.Get(idInt)
+	if err != nil {
+		switch {
+		case errors.Is(err, errors.New("record not found")):
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		default:
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+		return
+	}
+
 	var input struct {
 		Title     *string  `json:"title"`
 		Published *int     `json:"published"`
 		Pages     *int     `json:"pages"`
 		Genres    []string `json:"genres"`
 		Rating    *float32 `json:"rating"`
-	}
-
-	book := data.Book{
-		ID:        idInt,
-		CreatedAt: time.Now(),
-		Title:     "Echoes in the Darkness",
-		Published: 2019,
-		Pages:     300,
-		Genres:    []string{"Fiction", "Thriller"},
-		Rating:    4.5,
-		Version:   1,
 	}
 
 	/* body, err := io.ReadAll(r.Body)
@@ -181,7 +185,16 @@ func (app *application) updateBook(w http.ResponseWriter, r *http.Request) {
 		book.Rating = *input.Rating
 	}
 
-	fmt.Fprintf(w, "%v\n", book)
+	err = app.models.Books.Update(book)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"book": book}, nil); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (app *application) deleteBook(w http.ResponseWriter, r *http.Request) {
@@ -190,5 +203,21 @@ func (app *application) deleteBook(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
-	fmt.Fprintf(w, "Delete a book with ID: %d", idInt)
+
+	err = app.models.Books.Delete(idInt)
+	if err != nil {
+		switch {
+		case errors.Is(err, errors.New("record not found")):
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		default:
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "book successfully deleted"}, nil)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }

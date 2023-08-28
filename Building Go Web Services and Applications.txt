@@ -62,6 +62,9 @@ M4 Adding a Database
 
     Creating Models for CRUD  Operations
     https://app.pluralsight.com/course-player?clipId=b9de648f-a00d-43e2-b3ba-25ced2e75edc
+
+    Update Handlers with CRUD Models
+    https://app.pluralsight.com/course-player?clipId=83dc82ce-6c35-4521-a01f-00512bcc82c8
     
 
 -----
@@ -77,3 +80,5 @@ curl -i -d "$BODY" -X POST localhost:4000/v1/books
 
 BODY='{"title": "The Black Soulstone", "published": 2001, "pages": 107, "genres": ["Fiction", "Mystery"], "rating": 3.5}'
 curl -i -d "$BODY" -X PUT localhost:4000/v1/books/121
+
+curl -i -X DELETE localhost:4000/v1/books/1
