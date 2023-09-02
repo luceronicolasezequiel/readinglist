@@ -85,6 +85,9 @@ M6 Using Template
 
     Adding a File Server
     https://app.pluralsight.com/course-player?clipId=7e73d501-cc3c-409f-a8e2-0fe8f777092a
+
+    Using Templates Composition to Create the Home Page
+    https://app.pluralsight.com/course-player?clipId=ca703f20-aa60-4583-95fa-abfc9275e979
     
 -----
 

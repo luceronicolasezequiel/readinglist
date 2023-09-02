@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"text/template"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -21,11 +22,26 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "<html><head><title>Reading List</title></head><body><h1>Reading List</h1><ul>")
-	for _, book := range *books {
-		fmt.Fprintf(w, "<li>%s (%d)</li>", book.Title, book.Pages)
+
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/partials/nav.html",
+		"./ui/html/pages/home.html",
 	}
-	fmt.Fprintf(w, "</ul></body></html>")
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", books)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal server error", 500)
+		return
+	}
 }
 
 func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
