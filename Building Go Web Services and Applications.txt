@@ -75,6 +75,9 @@ M5 Creating a Web App
 
     Creating the Reading List Model
     https://app.pluralsight.com/course-player?clipId=c9310b8a-0f49-46bd-888d-63f2dfc25fd6
+
+    Updating the Web App Handlers
+    https://app.pluralsight.com/course-player?clipId=612629fe-0afb-489c-a1c7-cbd66863a28b
     
 -----
 
