@@ -78,6 +78,13 @@ M5 Creating a Web App
 
     Updating the Web App Handlers
     https://app.pluralsight.com/course-player?clipId=612629fe-0afb-489c-a1c7-cbd66863a28b
+
+M6 Using Template
+    Instroduction
+    https://app.pluralsight.com/course-player?clipId=858553f6-45bf-42eb-a6e0-61e60c406179
+
+    Adding a File Server
+    https://app.pluralsight.com/course-player?clipId=7e73d501-cc3c-409f-a8e2-0fe8f777092a
     
 -----
 
