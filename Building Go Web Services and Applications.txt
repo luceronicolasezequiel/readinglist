@@ -88,7 +88,11 @@ M6 Using Template
 
     Using Templates Composition to Create the Home Page
     https://app.pluralsight.com/course-player?clipId=ca703f20-aa60-4583-95fa-abfc9275e979
+
+    Adding Functions to Templates
+    https://app.pluralsight.com/course-player?clipId=350698e2-f359-4545-b83d-528eec8fb173
     
+
 -----
 
 curl -X GET localhost:4000/v1/healthcheck 

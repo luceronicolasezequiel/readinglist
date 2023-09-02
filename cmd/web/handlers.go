@@ -56,7 +56,29 @@ func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "%s (%d)\n", book.Title, book.Pages)
+
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/partials/nav.html",
+		"./ui/html/pages/view.html",
+	}
+
+	// Used to convert comma-separated genres to a slice within the template.
+	funcs := template.FuncMap{"join": strings.Join}
+
+	ts, err := template.New("showBook").Funcs(funcs).ParseFiles(files...)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", book)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
 }
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
