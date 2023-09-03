@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -94,43 +93,55 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) bookCreateForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<html><head><title>Create Book</title></head>"+
-		"<body><h1>Create Book</h1><form action=\"/book/create\" method=\"post\">"+
-		"<label for=\"title\">Title</label><input type=\"text\" name=\"title\" id=\"title\">"+
-		"<label for=\"pages\">Pages</label><input type=\"number\" name=\"pages\" id=\"pages\">"+
-		"<label for=\"published\">Published</label><input type=\"number\" name=\"published\" id=\"published\">"+
-		"<label for=\"genres\">Genres</label><input type=\"text\" name=\"genres\" id=\"genres\">"+
-		"<label for=\"rating\">Rating</label><input type=\"number\" step=\"o.1\" name=\"rating\" id=\"rating\">"+
-		"<button type=\"submit\">Create</button></form></body></html>")
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/partials/nav.html",
+		"./ui/html/pages/create.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+	err = ts.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
 }
 
 func (app *application) bookCreateProcess(w http.ResponseWriter, r *http.Request) {
-	title := r.PostFormValue("title")
-	if title == "" {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
-	pages, err := strconv.Atoi(r.PostFormValue("pages"))
-	if err != nil || pages < 1 {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
+	title := r.PostForm.Get("title")
 
-	published, err := strconv.Atoi(r.PostFormValue("published"))
-	if err != nil || published < 1 {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	genres := strings.Split(r.PostFormValue("genres"), " ")
-
-	ratingFloat, err := strconv.ParseFloat(r.PostFormValue("rating"), 32)
+	published, err := strconv.Atoi(r.PostForm.Get("published"))
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	rating := float32(ratingFloat)
+
+	pages, err := strconv.Atoi(r.PostForm.Get("pages"))
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	genres := strings.Split(r.PostForm.Get("genres"), ",")
+
+	rating, err := strconv.ParseFloat(r.PostForm.Get("rating"), 32)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
 	book := struct {
 		Title     string   `json:"title"`
@@ -143,7 +154,7 @@ func (app *application) bookCreateProcess(w http.ResponseWriter, r *http.Request
 		Pages:     pages,
 		Published: published,
 		Genres:    genres,
-		Rating:    rating,
+		Rating:    float32(rating),
 	}
 
 	data, err := json.Marshal(book)
